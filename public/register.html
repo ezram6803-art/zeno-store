@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar — Zeno Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 0; }
+    .auth-container { width: 100%; max-width: 440px; padding: 24px; position: relative; z-index: 1; }
+    .auth-logo { text-align: center; margin-bottom: 32px; }
+    .auth-logo a { text-decoration: none; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; color: var(--text-primary); }
+    .auth-logo a span { color: var(--accent-secondary); }
+    .auth-logo p { color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; }
+    .auth-card { padding: 36px 32px; }
+    .auth-card h2 { font-size: 1.5rem; margin-bottom: 6px; }
+    .auth-card .subtitle { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 28px; }
+    .auth-footer { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 0.88rem; }
+    .auth-footer a { color: var(--accent-bright); text-decoration: none; font-weight: 500; }
+    .back-home { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 20px; transition: color 0.2s; }
+    .back-home:hover { color: var(--text-primary); }
+    .password-wrap { position: relative; }
+    .password-wrap .form-control { padding-right: 44px; }
+    .toggle-pass { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 1rem; }
+    .strength-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 8px; overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 2px; transition: all 0.3s; width: 0; }
+    .strength-text { font-size: 0.75rem; margin-top: 4px; }
+    .terms { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 16px; line-height: 1.6; }
+    .terms a { color: var(--accent-bright); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <a href="/" class="back-home">← Kembali ke Home</a>
+    <div class="auth-logo">
+      <a href="/">Zeno<span>Store</span></a>
+      <p>Buat akun baru dan mulai berbelanja</p>
+    </div>
+
+    <div class="card auth-card">
+      <h2>Buat Akun Baru ✨</h2>
+      <p class="subtitle">Daftar gratis, langsung bisa belanja</p>
+
+      <div class="alert alert-error" id="alertError">
+        <span>⚠</span> <span id="alertMsg"></span>
+      </div>
+      <div class="alert alert-success" id="alertSuccess">
+        <span>✅</span> <span id="successMsg"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" placeholder="username_kamu" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="email@kamu.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="password-wrap">
+          <input type="password" class="form-control" id="password" placeholder="Minimal 6 karakter" oninput="checkStrength(this.value)">
+          <span class="toggle-pass" id="togglePass">👁</span>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-text" id="strengthText"></div>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" id="registerBtn" onclick="doRegister()">
+        Buat Akun Sekarang
+      </button>
+
+      <p class="terms">Dengan mendaftar, kamu menyetujui <a href="#">Syarat & Ketentuan</a> Zeno Store.</p>
+
+      <div class="auth-footer" style="margin-top:16px;">
+        Sudah punya akun? <a href="/login">Login di sini</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('togglePass').addEventListener('click', function() {
+      const pass = document.getElementById('password');
+      if (pass.type === 'password') { pass.type = 'text'; this.textContent = '🙈'; }
+      else { pass.type = 'password'; this.textContent = '👁'; }
+    });
+
+    function checkStrength(val) {
+      const fill = document.getElementById('strengthFill');
+      const text = document.getElementById('strengthText');
+      if (!val) { fill.style.width = '0'; text.textContent = ''; return; }
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const levels = [
+        { w: '20%', c: '#ff4d6d', t: '😕 Sangat Lemah' },
+        { w: '40%', c: '#ff9500', t: '😐 Lemah' },
+        { w: '60%', c: '#ffb800', t: '🙂 Cukup' },
+        { w: '80%', c: '#00c97a', t: '💪 Kuat' },
+        { w: '100%', c: '#0078ff', t: '🔒 Sangat Kuat' },
+      ];
+      const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+      fill.style.width = lvl.w;
+      fill.style.background = lvl.c;
+      text.textContent = lvl.t;
+      text.style.color = lvl.c;
+    }
+
+    async function doRegister() {
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('registerBtn');
+      const errEl = document.getElementById('alertError');
+      const sucEl = document.getElementById('alertSuccess');
+      errEl.classList.remove('show'); sucEl.classList.remove('show');
+
+      if (!username || !email || !password) {
+        document.getElementById('alertMsg').textContent = 'Semua field harus diisi.';
+        errEl.classList.add('show'); return;
+      }
+      if (password.length < 6) {
+        document.getElementById('alertMsg').textContent = 'Password minimal 6 karakter.';
+        errEl.classList.add('show'); return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Memproses...';
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('successMsg').textContent = 'Akun berhasil dibuat! Mengalihkan ke dashboard...';
+          sucEl.classList.add('show');
+          btn.innerHTML = '✅ Berhasil!';
+          setTimeout(() => window.location.href = '/dashboard', 1200);
+        } else {
+          document.getElementById('alertMsg').textContent = data.message;
+          errEl.classList.add('show');
+          btn.disabled = false;
+          btn.innerHTML = 'Buat Akun Sekarang';
+        }
+      } catch (e) {
+        document.getElementById('alertMsg').textContent = 'Terjadi kesalahan. Coba lagi.';
+        errEl.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = 'Buat Akun Sekarang';
+      }
+    }
+  </script>
+</body>
+</html>

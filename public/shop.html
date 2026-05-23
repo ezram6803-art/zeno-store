@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko — Zeno Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .shop-header { margin-bottom: 32px; }
+    .shop-header h1 { font-size: 2rem; margin-bottom: 6px; }
+    .shop-header p { color: var(--text-secondary); }
+
+    /* Filter tabs */
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .filter-tab {
+      padding: 8px 18px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover { border-color: var(--border-bright); color: var(--text-primary); }
+    .filter-tab.active {
+      background: var(--gradient-primary);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0, 120, 255, 0.3);
+    }
+
+    /* Product grid */
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .product-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .product-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .product-cat {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent-secondary); font-weight: 700;
+    }
+    .product-card h3 { font-size: 1rem; margin-bottom: 10px; line-height: 1.3; }
+    .product-card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.65; flex: 1; margin-bottom: 20px; }
+    .product-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; }
+    .price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--accent-secondary); }
+
+    /* Buy modal */
+    .modal-product-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+    .modal-price { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--accent-secondary); margin: 12px 0; }
+    .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .payment-method {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      background: transparent;
+    }
+    .payment-method:hover { border-color: var(--border-bright); }
+    .payment-method.selected { border-color: var(--accent); background: rgba(0, 120, 255, 0.1); }
+    .payment-method .pm-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .payment-method .pm-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+    .payment-method .pm-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+    @media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .products-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="page-loading" id="pageLoading">
+    <div class="loading-logo">Zeno<span>Store</span></div>
+    <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  </div>
+
+  <nav class="navbar">
+    <a class="nav-logo" href="/">
+      <div class="logo-icon">⚡</div>
+      Zeno<span>Store</span>
+    </a>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/shop" class="active">Toko</a>
+      <a href="/orders">Pesanan</a>
+    </div>
+    <div class="nav-actions">
+      <span id="navUsername" style="color:var(--text-secondary); font-size:0.88rem;"></span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="app-layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Menu</div>
+          <a href="/dashboard" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+          <a href="/shop" class="sidebar-link active"><span class="icon">🛒</span> Toko</a>
+          <a href="/orders" class="sidebar-link"><span class="icon">📦</span> Pesanan Saya</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Kategori</div>
+          <a href="#" class="sidebar-link" onclick="filterProducts('all')"><span class="icon">🔷</span> Semua</a>
+          <a href="#" class="sidebar-link" onclick="filterProducts('plugin')"><span class="icon">🧩</span> Plugin MC</a>
+          <a href="#" class="sidebar-link" onclick="filterProducts('backup')"><span class="icon">💾</span> Backup</a>
+          <a href="#" class="sidebar-link" onclick="filterProducts('website')"><span class="icon">🌐</span> Website</a>
+          <a href="#" class="sidebar-link" onclick="filterProducts('other')"><span class="icon">⚙️</span> Lainnya</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Akun</div>
+          <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Logout</a>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="shop-header fade-up">
+          <h1>🛒 Toko Zeno Store</h1>
+          <p>Plugin premium, backup server, dan jasa website terbaik untuk kamu</p>
+        </div>
+
+        <div class="filter-tabs fade-up delay-1">
+          <button class="filter-tab active" onclick="filterProducts('all', this)">🔷 Semua</button>
+          <button class="filter-tab" onclick="filterProducts('plugin', this)">🧩 Plugin Minecraft</button>
+          <button class="filter-tab" onclick="filterProducts('backup', this)">💾 Backup Server</button>
+          <button class="filter-tab" onclick="filterProducts('website', this)">🌐 Jasa Website</button>
+          <button class="filter-tab" onclick="filterProducts('other', this)">⚙️ Lainnya</button>
+        </div>
+
+        <div class="products-grid fade-up delay-2" id="productsGrid">
+          <!-- Loaded by JS -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- BUY MODAL -->
+  <div class="modal-overlay" id="buyModal">
+    <div class="modal">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+          <div class="modal-product-name" id="modalProductName">—</div>
+          <div style="font-size:0.8rem; color:var(--text-muted);" id="modalProductCat">—</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-price" id="modalPrice">Rp 0</div>
+
+      <div style="margin-bottom:14px;">
+        <label class="form-label">Pilih Metode Pembayaran</label>
+        <div class="payment-methods">
+          <button class="payment-method" onclick="selectPayment('gopay', this)">
+            <div class="pm-icon">💚</div>
+            <div class="pm-name">GoPay</div>
+            <div class="pm-sub">Transfer ke no. GoPay</div>
+          </button>
+          <button class="payment-method" onclick="selectPayment('dana', this)">
+            <div class="pm-icon">💙</div>
+            <div class="pm-name">DANA</div>
+            <div class="pm-sub">Transfer ke no. DANA</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="alert alert-error" id="modalAlert"><span>⚠</span> <span id="modalAlertMsg"></span></div>
+
+      <button class="btn btn-primary btn-full btn-lg" id="confirmBuyBtn" onclick="confirmBuy()">
+        Lanjutkan ke Pembayaran →
+      </button>
+      <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="closeModal()">Batal</button>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    let allProducts = [];
+    let selectedProductId = null;
+    let selectedPayment = null;
+
+    checkAuth();
+
+    async function initShop() {
+      const me = await getMe();
+      if (!me) return;
+      document.getElementById('navUsername').textContent = me.username;
+
+      allProducts = await fetch('/api/products').then(r => r.json());
+
+      // Check URL param
+      const urlCat = new URLSearchParams(window.location.search).get('cat');
+      if (urlCat) filterProducts(urlCat);
+      else renderProducts(allProducts);
+
+      hideLoading();
+    }
+
+    function renderProducts(products) {
+      const grid = document.getElementById('productsGrid');
+      if (products.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">😕</div><p>Produk tidak ditemukan</p></div>`;
+        return;
+      }
+      const catIcon = { plugin: '🧩', backup: '💾', website: '🌐', other: '⚙️' };
+      const catLabel = { plugin: 'Plugin Minecraft', backup: 'Backup Server', website: 'Jasa Website', other: 'Lainnya' };
+      grid.innerHTML = products.map(p => `
+        <div class="card product-card" onclick="openBuyModal(${p.id})">
+          <div class="product-card-header">
+            <div class="product-cat">${catIcon[p.category]} ${catLabel[p.category]}</div>
+            ${p.badge ? `<span class="badge badge-blue">${p.badge}</span>` : ''}
+          </div>
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="product-card-footer">
+            <span class="price">Rp ${p.price.toLocaleString('id-ID')}</span>
+            <button class="btn btn-primary btn-sm">Beli →</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterProducts(cat, el) {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      if (el) el.classList.add('active');
+      const filtered = cat === 'all' ? allProducts : allProducts.filter(p => p.category === cat);
+      renderProducts(filtered);
+    }
+
+    function openBuyModal(productId) {
+      const p = allProducts.find(p => p.id === productId);
+      if (!p) return;
+      selectedProductId = productId;
+      selectedPayment = null;
+      document.getElementById('modalProductName').textContent = p.name;
+      document.getElementById('modalProductCat').textContent = { plugin: '🧩 Plugin Minecraft', backup: '💾 Backup Server', website: '🌐 Jasa Website', other: '⚙️ Lainnya' }[p.category];
+      document.getElementById('modalPrice').textContent = 'Rp ' + p.price.toLocaleString('id-ID');
+      document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+      document.getElementById('modalAlert').classList.remove('show');
+      document.getElementById('buyModal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('buyModal').classList.remove('show');
+      selectedProductId = null;
+      selectedPayment = null;
+    }
+
+    function selectPayment(method, el) {
+      selectedPayment = method;
+      document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    async function confirmBuy() {
+      const alertEl = document.getElementById('modalAlert');
+      alertEl.classList.remove('show');
+      if (!selectedPayment) {
+        document.getElementById('modalAlertMsg').textContent = 'Pilih metode pembayaran terlebih dahulu.';
+        alertEl.classList.add('show');
+        return;
+      }
+      const btn = document.getElementById('confirmBuyBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Memproses...';
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: selectedProductId, paymentMethod: selectedPayment, quantity: 1 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeModal();
+          window.location.href = `/payment/${data.orderId}`;
+        } else {
+          document.getElementById('modalAlertMsg').textContent = data.message || 'Terjadi kesalahan.';
+          alertEl.classList.add('show');
+          btn.disabled = false;
+          btn.innerHTML = 'Lanjutkan ke Pembayaran →';
+        }
+      } catch (e) {
+        document.getElementById('modalAlertMsg').textContent = 'Gagal memproses. Coba lagi.';
+        alertEl.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = 'Lanjutkan ke Pembayaran →';
+      }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('buyModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    initShop();
+  </script>
+</body>
+</html>

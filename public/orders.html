@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesanan Saya — Zeno Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .orders-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+    .orders-header h1 { font-size: 1.8rem; }
+    .order-card { padding: 22px 24px; margin-bottom: 14px; display: flex; align-items: center; gap: 18px; }
+    .order-card:hover { transform: translateX(4px); }
+    .order-icon-big {
+      width: 52px; height: 52px;
+      background: rgba(0, 120, 255, 0.12);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .order-main { flex: 1; min-width: 0; }
+    .order-main h3 { font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-main .meta { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .order-right-info { text-align: right; flex-shrink: 0; }
+    .order-price-big { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: var(--accent-secondary); }
+    .order-status-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+      margin-top: 4px;
+    }
+    .pill-pending { background: rgba(255, 184, 0, 0.12); color: var(--warning); border: 1px solid rgba(255,184,0,0.3); }
+    .pill-confirmed { background: rgba(0, 201, 122, 0.12); color: var(--success); border: 1px solid rgba(0,201,122,0.3); }
+    .pill-rejected { background: rgba(255, 77, 109, 0.12); color: var(--danger); border: 1px solid rgba(255,77,109,0.3); }
+    .order-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-pill {
+      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); font-size: 0.8rem;
+      cursor: pointer; transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .filter-pill:hover { border-color: var(--border-bright); color: var(--text-primary); }
+    .filter-pill.active { background: rgba(0,120,255,0.15); border-color: var(--border-bright); color: var(--accent-bright); }
+  </style>
+</head>
+<body>
+  <div class="page-loading" id="pageLoading">
+    <div class="loading-logo">Zeno<span>Store</span></div>
+    <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  </div>
+
+  <nav class="navbar">
+    <a class="nav-logo" href="/">
+      <div class="logo-icon">⚡</div>
+      Zeno<span>Store</span>
+    </a>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/shop">Toko</a>
+      <a href="/orders" class="active">Pesanan</a>
+    </div>
+    <div class="nav-actions">
+      <span id="navUsername" style="color:var(--text-secondary); font-size:0.88rem;"></span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="app-layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Menu</div>
+          <a href="/dashboard" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+          <a href="/shop" class="sidebar-link"><span class="icon">🛒</span> Toko</a>
+          <a href="/orders" class="sidebar-link active"><span class="icon">📦</span> Pesanan Saya</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Akun</div>
+          <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Logout</a>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="orders-header fade-up">
+          <div>
+            <h1>📦 Pesanan Saya</h1>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">Riwayat semua transaksi kamu</p>
+          </div>
+          <a href="/shop" class="btn btn-primary">+ Beli Lagi</a>
+        </div>
+
+        <div class="filter-bar fade-up delay-1">
+          <button class="filter-pill active" onclick="filterOrders('all', this)">Semua</button>
+          <button class="filter-pill" onclick="filterOrders('pending', this)">⏳ Menunggu</button>
+          <button class="filter-pill" onclick="filterOrders('confirmed', this)">✅ Selesai</button>
+          <button class="filter-pill" onclick="filterOrders('rejected', this)">❌ Ditolak</button>
+        </div>
+
+        <div id="ordersList" class="fade-up delay-2"></div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    let allOrders = [];
+    checkAuth();
+
+    async function initOrders() {
+      const me = await getMe();
+      if (!me) return;
+      document.getElementById('navUsername').textContent = me.username;
+
+      allOrders = await fetch('/api/orders/my').then(r => r.json());
+      renderOrders(allOrders);
+      hideLoading();
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('ordersList');
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <p>Tidak ada pesanan ditemukan.</p>
+            <a href="/shop" class="btn btn-primary" style="margin-top:16px;">Mulai Belanja</a>
+          </div>`;
+        return;
+      }
+
+      const catIcon = { plugin: '🧩', backup: '💾', website: '🌐', other: '⚙️' };
+      const statusConfig = {
+        pending: { pill: 'pill-pending', text: '⏳ Menunggu Konfirmasi' },
+        confirmed: { pill: 'pill-confirmed', text: '✅ Selesai' },
+        rejected: { pill: 'pill-rejected', text: '❌ Ditolak' }
+      };
+
+      container.innerHTML = orders.map(o => {
+        const sc = statusConfig[o.status] || statusConfig.pending;
+        const date = new Date(o.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        const payMethod = o.paymentMethod === 'gopay' ? '💚 GoPay' : '💙 DANA';
+        return `
+          <div class="card order-card">
+            <div class="order-icon-big">${catIcon[o.category] || '📦'}</div>
+            <div class="order-main">
+              <h3>${o.productName}</h3>
+              <div class="meta">
+                <span>📋 ${o.id}</span>
+                <span>📅 ${date}</span>
+                <span>${payMethod}</span>
+              </div>
+              ${o.status === 'pending' ? `
+                <div class="order-actions">
+                  <a href="/payment/${o.id}" class="btn btn-primary btn-sm">Bayar Sekarang</a>
+                </div>
+              ` : ''}
+            </div>
+            <div class="order-right-info">
+              <div class="order-price-big">Rp ${o.total.toLocaleString('id-ID')}</div>
+              <div><span class="order-status-pill ${sc.pill}">${sc.text}</span></div>
+              ${o.status === 'confirmed' && o.confirmedAt ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Dikonfirmasi ${new Date(o.confirmedAt).toLocaleDateString('id-ID')}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterOrders(status, el) {
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      const filtered = status === 'all' ? allOrders : allOrders.filter(o => o.status === status);
+      renderOrders(filtered);
+    }
+
+    initOrders();
+  </script>
+</body>
+</html>

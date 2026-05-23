@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Zeno Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .admin-header { margin-bottom: 28px; }
+    .admin-header h1 { font-size: 1.8rem; }
+    .admin-header .admin-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255, 184, 0, 0.12); border: 1px solid rgba(255,184,0,0.3);
+      color: var(--warning); padding: 4px 12px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-bottom: 8px;
+    }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card { padding: 20px 22px; }
+    .stat-card .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 8px; }
+    .stat-card .stat-num { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; }
+
+    /* Tabs */
+    .admin-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: var(--radius); border: 1px solid var(--border); width: fit-content; }
+    .admin-tab {
+      padding: 8px 20px; border-radius: calc(var(--radius) - 4px);
+      border: none; background: transparent; cursor: pointer;
+      color: var(--text-secondary); font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 500; transition: all 0.2s;
+    }
+    .admin-tab.active { background: var(--gradient-primary); color: #fff; box-shadow: 0 2px 12px rgba(0,120,255,0.3); }
+
+    /* Orders table */
+    .order-actions-cell { display: flex; gap: 6px; }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.73rem; font-weight: 600;
+    }
+    .sb-pending { background: rgba(255,184,0,.12); color: var(--warning); border: 1px solid rgba(255,184,0,.3); }
+    .sb-confirmed { background: rgba(0,201,122,.12); color: var(--success); border: 1px solid rgba(0,201,122,.3); }
+    .sb-rejected { background: rgba(255,77,109,.12); color: var(--danger); border: 1px solid rgba(255,77,109,.3); }
+
+    .search-bar { margin-bottom: 16px; }
+    .search-bar input { max-width: 340px; }
+
+    @media (max-width:900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="page-loading" id="pageLoading">
+    <div class="loading-logo">Zeno<span>Store</span></div>
+    <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  </div>
+
+  <nav class="navbar">
+    <a class="nav-logo" href="/">
+      <div class="logo-icon">⚡</div>
+      Zeno<span>Store</span>
+    </a>
+    <div class="nav-links">
+      <a href="/admin" class="active">Admin</a>
+    </div>
+    <div class="nav-actions">
+      <span style="color:var(--warning); font-size:0.82rem; font-weight:600;">⚙ Admin Panel</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="app-layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Admin</div>
+          <a href="/admin" class="sidebar-link active"><span class="icon">⚙️</span> Admin Panel</a>
+          <a href="/dashboard" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Akun</div>
+          <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Logout</a>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="admin-header fade-up">
+          <div class="admin-badge">⚙ Admin</div>
+          <h1>Panel Admin Zeno Store</h1>
+          <p style="color:var(--text-secondary); font-size:0.9rem;">Kelola pesanan, pengguna, dan statistik toko</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row fade-up delay-1">
+          <div class="card stat-card">
+            <div class="stat-label">Total Pesanan</div>
+            <div class="stat-num" id="statOrders">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label">Menunggu</div>
+            <div class="stat-num" id="statPending" style="color:var(--warning)">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label">Total Pengguna</div>
+            <div class="stat-num" id="statUsers" style="color:var(--accent-secondary)">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-num" id="statRevenue" style="color:var(--success); font-size:1.2rem;">—</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs fade-up delay-2">
+          <button class="admin-tab active" onclick="showTab('orders', this)">📦 Pesanan</button>
+          <button class="admin-tab" onclick="showTab('users', this)">👤 Pengguna</button>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="tabOrders" class="fade-up delay-3">
+          <div class="search-bar">
+            <input type="text" class="form-control" placeholder="🔍 Cari Order ID, nama produk, atau username..." oninput="searchOrders(this.value)">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Username</th>
+                  <th>Produk</th>
+                  <th>Total</th>
+                  <th>Metode</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="tabUsers" style="display:none;" class="fade-up delay-3">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Bergabung</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    let allOrders = [];
+
+    checkAuth();
+
+    async function initAdmin() {
+      const me = await getMe();
+      if (!me || me.role !== 'admin') { window.location.href = '/dashboard'; return; }
+
+      await loadStats();
+      await loadOrders();
+      hideLoading();
+    }
+
+    async function loadStats() {
+      const s = await fetch('/api/admin/stats').then(r => r.json());
+      document.getElementById('statOrders').textContent = s.totalOrders;
+      document.getElementById('statPending').textContent = s.pendingOrders;
+      document.getElementById('statUsers').textContent = s.totalUsers;
+      document.getElementById('statRevenue').textContent = 'Rp ' + s.revenue.toLocaleString('id-ID');
+    }
+
+    async function loadOrders() {
+      allOrders = await fetch('/api/admin/orders').then(r => r.json());
+      renderOrders(allOrders);
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('ordersTable');
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--text-muted);">Tidak ada pesanan</td></tr>`;
+        return;
+      }
+      const statusMap = {
+        pending: '<span class="status-badge sb-pending">⏳ Menunggu</span>',
+        confirmed: '<span class="status-badge sb-confirmed">✅ Selesai</span>',
+        rejected: '<span class="status-badge sb-rejected">❌ Ditolak</span>'
+      };
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td style="font-family:'Syne',sans-serif; font-size:0.8rem; color:var(--accent-secondary);">${o.id}</td>
+          <td><strong>${o.username}</strong></td>
+          <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${o.productName}</td>
+          <td class="price-tag" style="font-size:0.9rem;">Rp ${o.total.toLocaleString('id-ID')}</td>
+          <td>${o.paymentMethod === 'gopay' ? '💚 GoPay' : '💙 DANA'}</td>
+          <td>${statusMap[o.status] || o.status}</td>
+          <td style="color:var(--text-muted); font-size:0.8rem;">${new Date(o.createdAt).toLocaleDateString('id-ID')}</td>
+          <td>
+            <div class="order-actions-cell">
+              ${o.status === 'pending' ? `
+                <button class="btn btn-success btn-sm" onclick="confirmOrder('${o.id}')">✅</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectOrder('${o.id}')">❌</button>
+              ` : '<span style="color:var(--text-muted); font-size:0.8rem;">—</span>'}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function searchOrders(q) {
+      if (!q) { renderOrders(allOrders); return; }
+      const lq = q.toLowerCase();
+      renderOrders(allOrders.filter(o =>
+        o.id.toLowerCase().includes(lq) ||
+        o.productName.toLowerCase().includes(lq) ||
+        o.username.toLowerCase().includes(lq)
+      ));
+    }
+
+    async function confirmOrder(id) {
+      if (!confirm('Konfirmasi pesanan ini?')) return;
+      const res = await fetch(`/api/admin/orders/${id}/confirm`, { method: 'POST' }).then(r => r.json());
+      if (res.success) { showToast('✅ Pesanan dikonfirmasi!', 'success'); await loadStats(); await loadOrders(); }
+      else showToast('Gagal mengkonfirmasi.', 'error');
+    }
+
+    async function rejectOrder(id) {
+      if (!confirm('Tolak pesanan ini?')) return;
+      const res = await fetch(`/api/admin/orders/${id}/reject`, { method: 'POST' }).then(r => r.json());
+      if (res.success) { showToast('❌ Pesanan ditolak.', 'success'); await loadStats(); await loadOrders(); }
+      else showToast('Gagal menolak pesanan.', 'error');
+    }
+
+    async function loadUsers() {
+      const users = await fetch('/api/admin/users').then(r => r.json());
+      const tbody = document.getElementById('usersTable');
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td><strong>${u.username}</strong></td>
+          <td style="color:var(--text-secondary);">${u.email}</td>
+          <td>${u.role === 'admin' ? '<span class="badge badge-yellow">Admin</span>' : '<span class="badge badge-gray">User</span>'}</td>
+          <td style="color:var(--text-muted); font-size:0.8rem;">${new Date(u.createdAt).toLocaleDateString('id-ID')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function showTab(tab, el) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tabOrders').style.display = tab === 'orders' ? 'block' : 'none';
+      document.getElementById('tabUsers').style.display = tab === 'users' ? 'block' : 'none';
+      if (tab === 'users') loadUsers();
+    }
+
+    initAdmin();
+  </script>
+</body>
+</html>

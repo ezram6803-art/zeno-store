@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Zeno Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .auth-container { width: 100%; max-width: 420px; padding: 24px; position: relative; z-index: 1; }
+    .auth-logo {
+      text-align: center; margin-bottom: 36px;
+    }
+    .auth-logo a {
+      text-decoration: none;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--text-primary);
+    }
+    .auth-logo a span { color: var(--accent-secondary); }
+    .auth-logo p { color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; }
+    .auth-card {
+      padding: 36px 32px;
+    }
+    .auth-card h2 { font-size: 1.5rem; margin-bottom: 6px; }
+    .auth-card .subtitle { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 28px; }
+    .auth-footer { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 0.88rem; }
+    .auth-footer a { color: var(--accent-bright); text-decoration: none; font-weight: 500; }
+    .auth-footer a:hover { text-decoration: underline; }
+    .back-home { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 20px; transition: color 0.2s; }
+    .back-home:hover { color: var(--text-primary); }
+    .divider-or { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .divider-or::before, .divider-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .divider-or span { font-size: 0.75rem; color: var(--text-muted); }
+    .password-wrap { position: relative; }
+    .password-wrap .form-control { padding-right: 44px; }
+    .toggle-pass {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; color: var(--text-muted); font-size: 1rem; user-select: none;
+    }
+    .toggle-pass:hover { color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <a href="/" class="back-home">← Kembali ke Home</a>
+    <div class="auth-logo">
+      <a href="/">Zeno<span>Store</span></a>
+      <p>Platform Plugin & Layanan Minecraft</p>
+    </div>
+
+    <div class="card auth-card">
+      <h2>Selamat Datang 👋</h2>
+      <p class="subtitle">Masuk ke akun Zeno Store kamu</p>
+
+      <div class="alert alert-error" id="alertError">
+        <span>⚠</span> <span id="alertMsg"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="email@kamu.com" autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="password-wrap">
+          <input type="password" class="form-control" id="password" placeholder="Masukkan password">
+          <span class="toggle-pass" id="togglePass">👁</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" id="loginBtn" onclick="doLogin()">
+        Masuk ke Akun
+      </button>
+
+      <div class="divider-or"><span>atau</span></div>
+      <div class="auth-footer">
+        Belum punya akun? <a href="/register">Daftar Sekarang</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle password
+    document.getElementById('togglePass').addEventListener('click', function() {
+      const pass = document.getElementById('password');
+      if (pass.type === 'password') { pass.type = 'text'; this.textContent = '🙈'; }
+      else { pass.type = 'password'; this.textContent = '👁'; }
+    });
+
+    // Enter key
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+    async function doLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const alertEl = document.getElementById('alertError');
+      const alertMsg = document.getElementById('alertMsg');
+
+      if (!email || !password) {
+        alertMsg.textContent = 'Email dan password wajib diisi.';
+        alertEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Masuk...';
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          btn.innerHTML = '✅ Berhasil! Mengalihkan...';
+          setTimeout(() => {
+            window.location.href = data.role === 'admin' ? '/admin' : '/dashboard';
+          }, 600);
+        } else {
+          alertMsg.textContent = data.message;
+          alertEl.classList.add('show');
+          btn.disabled = false;
+          btn.innerHTML = 'Masuk ke Akun';
+        }
+      } catch (e) {
+        alertMsg.textContent = 'Terjadi kesalahan. Coba lagi.';
+        alertEl.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = 'Masuk ke Akun';
+      }
+    }
+  </script>
+</body>
+</html>
