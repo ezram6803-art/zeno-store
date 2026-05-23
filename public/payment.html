@@ -192,7 +192,7 @@
           <div class="qr-container">
             <!-- QR Placeholder — ganti dengan QR asli kamu -->
             <img class="qr-img" id="qrImage"
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='white'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' font-size='14' fill='%23666' dy='.35em'%3EQR Code%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' font-size='11' fill='%23999' dy='.35em'%3E(Ganti dengan QR asli)%3C/text%3E%3C/svg%3E"
+              src="images/qr.png' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='white'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' font-size='14' fill='%23666' dy='.35em'%3EQR Code%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' font-size='11' fill='%23999' dy='.35em'%3E(Ganti dengan QR asli)%3C/text%3E%3C/svg%3E"
               alt="QR Code Pembayaran"
             >
           </div>
@@ -264,14 +264,14 @@
       const steps = isGopay ? [
         'Buka aplikasi <strong>Gojek / GoPay</strong> di smartphone kamu.',
         'Pilih menu <strong>Kirim</strong> atau <strong>Transfer</strong>.',
-        `Masukkan nomor GoPay: <strong>+62 812-3456-7890</strong>`,
+        `Masukkan nomor GoPay: <strong>083847569871</strong>`,
         `Masukkan nominal <strong>Rp ${order.total.toLocaleString('id-ID')}</strong> (harus tepat).`,
         'Tambahkan catatan: <strong>Order ID ' + order.id + '</strong>',
         'Screenshot bukti transfer lalu kirim ke WhatsApp kami.'
       ] : [
         'Buka aplikasi <strong>DANA</strong> di smartphone kamu.',
         'Pilih menu <strong>Kirim Uang</strong>.',
-        `Masukkan nomor DANA: <strong>+62 813-9876-5432</strong>`,
+        `Masukkan nomor DANA: <strong>082298673652</strong>`,
         `Masukkan nominal <strong>Rp ${order.total.toLocaleString('id-ID')}</strong> (harus tepat).`,
         'Tambahkan catatan: <strong>Order ID ' + order.id + '</strong>',
         'Screenshot bukti transfer lalu kirim ke WhatsApp kami.'
@@ -286,7 +286,7 @@
 
       // WA link
       const waText = encodeURIComponent(`Halo Zeno Store, saya sudah transfer untuk Order ID: ${order.id}\nProduk: ${order.productName}\nTotal: Rp ${order.total.toLocaleString('id-ID')}\nMetode: ${isGopay ? 'GoPay' : 'DANA'}`);
-      document.getElementById('waLink').href = `https://wa.me/62xxxxxxxxxx?text=${waText}`;
+      document.getElementById('waLink').href = `https://wa.me/6285138494646?text=${waText}`;
 
       // Timer 30 min
       startTimer(30 * 60);
