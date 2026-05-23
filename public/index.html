@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeno Store — Premium Minecraft & Web Services</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 68px;
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 80, 200, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 80, 200, 0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-glow {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(0, 100, 255, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 120, 255, 0.12);
+      border: 1px solid rgba(0, 150, 255, 0.3);
+      border-radius: 30px;
+      padding: 6px 16px;
+      font-size: 0.82rem;
+      color: var(--accent-secondary);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-badge::before { content: '⚡'; }
+    .hero-title {
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 22px;
+      letter-spacing: -0.02em;
+    }
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .stat-item { text-align: center; }
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* FEATURES */
+    .features { padding: 80px 0; position: relative; z-index: 1; }
+    .feature-card {
+      padding: 28px;
+    }
+    .feature-icon {
+      width: 52px; height: 52px;
+      background: rgba(0, 120, 255, 0.15);
+      border: 1px solid var(--border-bright);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 { font-size: 1.05rem; margin-bottom: 10px; }
+    .feature-card p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
+
+    /* PRODUCTS PREVIEW */
+    .products-preview { padding: 60px 0 80px; position: relative; z-index: 1; }
+    .product-card { padding: 24px; cursor: pointer; }
+    .product-category-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-secondary);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .product-card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .product-card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; margin-bottom: 16px; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-badge {
+      position: absolute;
+      top: 16px; right: 16px;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 80px 0;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-box {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 56px 40px;
+    }
+    .cta-box h2 { font-size: 2.2rem; margin-bottom: 16px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 32px; line-height: 1.7; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    footer p { color: var(--text-muted); font-size: 0.85rem; }
+    footer .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+    footer .footer-logo span { color: var(--accent-secondary); }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="nav-logo" href="/">
+      <div class="logo-icon">⚡</div>
+      Zeno<span>Store</span>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="active">Home</a>
+      <a href="#features">Layanan</a>
+      <a href="#products">Produk</a>
+    </div>
+    <div class="nav-actions" id="navActions">
+      <a href="/login" class="btn btn-ghost btn-sm">Login</a>
+      <a href="/register" class="btn btn-primary btn-sm">Daftar</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Terpercaya & Terbaik</div>
+      <h1 class="hero-title fade-up">
+        Plugin Premium &<br><span class="gradient-text">Layanan Server</span><br>Minecraft Terbaik
+      </h1>
+      <p class="hero-subtitle fade-up delay-1">
+        Zeno Store hadir untuk memenuhi kebutuhan server Minecraft kamu.<br>
+        Plugin premium, backup server, dan jasa pembuatan website dengan harga terjangkau.
+      </p>
+      <div class="hero-actions fade-up delay-2">
+        <a href="/register" class="btn btn-primary btn-lg">Mulai Sekarang →</a>
+        <a href="#products" class="btn btn-outline btn-lg">Lihat Produk</a>
+      </div>
+      <div class="hero-stats fade-up delay-3">
+        <div class="stat-item">
+          <div class="stat-number">100+</div>
+          <div class="stat-label">Plugin Premium</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">500+</div>
+          <div class="stat-label">Pelanggan Puas</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Support</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <div style="text-align:center; margin-bottom: 48px;">
+        <div class="hero-badge">Kenapa Zeno Store?</div>
+        <h2 class="section-title" style="margin-top:16px; font-size:2rem;">Layanan Berkualitas Tinggi</h2>
+        <p class="section-sub">Kami berkomitmen memberikan yang terbaik untuk server dan bisnis kamu</p>
+      </div>
+      <div class="grid-3">
+        <div class="card feature-card fade-up">
+          <div class="feature-icon">🧩</div>
+          <h3>Plugin Premium Minecraft</h3>
+          <p>Koleksi plugin premium terlengkap dengan harga terjangkau. Semua sudah ditest dan siap pakai untuk server kamu.</p>
+        </div>
+        <div class="card feature-card fade-up delay-1">
+          <div class="feature-icon">💾</div>
+          <h3>Backup Server Otomatis</h3>
+          <p>Lindungi data server Minecraft kamu dengan layanan backup otomatis. Tersedia paket 7 hari hingga 30 hari.</p>
+        </div>
+        <div class="card feature-card fade-up delay-2">
+          <div class="feature-icon">🌐</div>
+          <h3>Jasa Buat Website</h3>
+          <p>Website profesional untuk bisnis atau komunitas Minecraft kamu. Dari landing page hingga sistem full fitur.</p>
+        </div>
+        <div class="card feature-card fade-up">
+          <div class="feature-icon">⚡</div>
+          <h3>Pengiriman Cepat</h3>
+          <p>Setelah pembayaran dikonfirmasi, produk langsung dikirim ke email atau WhatsApp kamu dalam hitungan menit.</p>
+        </div>
+        <div class="card feature-card fade-up delay-1">
+          <div class="feature-icon">🔒</div>
+          <h3>Aman & Terpercaya</h3>
+          <p>Transaksi aman dengan konfirmasi manual. Setiap pesanan diproses dengan teliti oleh tim kami.</p>
+        </div>
+        <div class="card feature-card fade-up delay-2">
+          <div class="feature-icon">💬</div>
+          <h3>Support 24/7</h3>
+          <p>Tim support siap membantu kamu kapan saja. Hubungi kami lewat WhatsApp atau Discord.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS PREVIEW -->
+  <section class="products-preview" id="products">
+    <div class="container">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:16px;">
+        <div>
+          <h2 class="section-title">Produk Unggulan</h2>
+          <p class="section-sub" style="margin-bottom:0;">Plugin dan layanan terpopuler kami</p>
+        </div>
+        <a href="/login" class="btn btn-outline">Lihat Semua →</a>
+      </div>
+      <div class="grid-3" id="productPreview">
+        <!-- Loaded by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="card cta-box">
+        <h2>Siap Upgrade Server Kamu? 🚀</h2>
+        <p>Daftar sekarang dan nikmati semua layanan premium Zeno Store. Proses mudah, harga terjangkau, hasil maksimal.</p>
+        <div style="display:flex; gap:12px; justify-content:center;">
+          <a href="/register" class="btn btn-primary btn-lg">Daftar Gratis</a>
+          <a href="/login" class="btn btn-ghost btn-lg">Login</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">Zeno<span>Store</span></div>
+      <p>© 2024 Zeno Store. Premium Minecraft & Web Services.</p>
+      <p style="margin-top:8px;">WhatsApp: +62 xxx-xxxx-xxxx &nbsp;·&nbsp; Discord: ZenoStore#0000</p>
+    </div>
+  </footer>
+
+  <script>
+    // Check if already logged in
+    fetch('/api/me').then(r => r.json()).then(data => {
+      if (data.user) {
+        const nav = document.getElementById('navActions');
+        nav.innerHTML = `<a href="/dashboard" class="btn btn-primary btn-sm">Dashboard →</a>`;
+      }
+    });
+
+    // Load product preview
+    fetch('/api/products').then(r => r.json()).then(products => {
+      const container = document.getElementById('productPreview');
+      const shown = products.slice(0, 6);
+      container.innerHTML = shown.map(p => `
+        <div class="card product-card fade-up">
+          ${p.badge ? `<div class="product-badge"><span class="badge badge-blue">${p.badge}</span></div>` : ''}
+          <div class="product-category-tag">${categoryLabel(p.category)}</div>
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="product-footer">
+            <span class="price-tag">Rp ${p.price.toLocaleString('id-ID')}</span>
+            <a href="/login" class="btn btn-primary btn-sm">Beli →</a>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    function categoryLabel(cat) {
+      const map = { plugin: '🧩 Plugin Minecraft', backup: '💾 Backup Server', website: '🌐 Jasa Website', other: '⚙️ Lainnya' };
+      return map[cat] || cat;
+    }
+  </script>
+</body>
+</html>
