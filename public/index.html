@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeno Store — Plugin & Jasa Minecraft</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #00ff88;
+            --green-dim: #00cc66;
+            --dark: #050a0e;
+            --dark2: #0a1420;
+            --dark3: #0f1e2d;
+            --card: #0d1f2d;
+            --border: #1a3a4a;
+            --text: #c8e6f0;
+            --muted: #5a8a9f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--dark);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAVBAR */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 60px;
+            background: rgba(5,10,14,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--green);
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+
+        .nav-logo span { color: var(--text); }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--green); }
+
+        .nav-buttons { display: flex; gap: 12px; }
+
+        .btn-outline {
+            padding: 8px 22px;
+            border: 1px solid var(--green);
+            color: var(--green);
+            background: transparent;
+            border-radius: 4px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: var(--green);
+            color: var(--dark);
+        }
+
+        .btn-solid {
+            padding: 8px 22px;
+            background: var(--green);
+            color: var(--dark);
+            border: 1px solid var(--green);
+            border-radius: 4px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-solid:hover {
+            background: var(--green-dim);
+            border-color: var(--green-dim);
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            z-index: 1;
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,255,136,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            border: 1px solid var(--green);
+            border-radius: 2px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 28px;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeUp 0.6s ease 0.1s both;
+        }
+
+        .hero h1 .accent { color: var(--green); }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--muted);
+            max-width: 560px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            font-weight: 400;
+            animation: fadeUp 0.6s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeUp 0.6s ease 0.3s both;
+        }
+
+        .btn-hero {
+            padding: 14px 36px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+
+        .btn-hero-primary {
+            background: var(--green);
+            color: var(--dark);
+            border: 2px solid var(--green);
+        }
+
+        .btn-hero-primary:hover {
+            background: transparent;
+            color: var(--green);
+            box-shadow: 0 0 30px rgba(0,255,136,0.3);
+        }
+
+        .btn-hero-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-hero-secondary:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        /* STATS */
+        .stats {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(13,31,45,0.5);
+            flex-wrap: wrap;
+        }
+
+        .stat { text-align: center; }
+
+        .stat-num {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--green);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* PRODUCTS */
+        .section {
+            position: relative;
+            z-index: 1;
+            padding: 80px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.8rem, 3vw, 2.8rem);
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .product-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--green);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            border-color: rgba(0,255,136,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        .product-card:hover::before { transform: scaleX(1); }
+
+        .product-icon {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .product-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .product-price {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 16px; right: 16px;
+            padding: 3px 10px;
+            background: rgba(0,255,136,0.15);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 2px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--green);
+            text-transform: uppercase;
+        }
+
+        /* WHY US */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--dark2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .feature-card:hover { border-color: rgba(0,255,136,0.3); }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .feature-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .feature-desc {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* CTA */
+        .cta-section {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(180deg, transparent, rgba(0,255,136,0.03), transparent);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cta-section h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            color: var(--muted);
+            font-size: 1rem;
+            margin-bottom: 36px;
+        }
+
+        /* FOOTER */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        footer span { color: var(--green); }
+
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 20px; }
+            .nav-links { display: none; }
+            .section { padding: 60px 20px; }
+            .stats { gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <a href="/" class="nav-logo">ZENO<span>STORE</span></a>
+        <ul class="nav-links">
+            <li><a href="#produk">Produk</a></li>
+            <li><a href="#layanan">Layanan</a></li>
+            <li><a href="#kontak">Kontak</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <a href="/login" class="btn-outline">Login</a>
+            <a href="/register" class="btn-solid">Daftar</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-glow"></div>
+        <div>
+            <div class="hero-tag">⚡ Terpercaya & Profesional</div>
+            <h1>ZENO <span class="accent">STORE</span></h1>
+            <p>Plugin Premium, Asset Minecraft, Backup Server, dan Jasa Website. Semua kebutuhan Minecraft server kamu ada di sini.</p>
+            <div class="hero-buttons">
+                <a href="/register" class="btn-hero btn-hero-primary">Mulai Sekarang</a>
+                <a href="#produk" class="btn-hero btn-hero-secondary">Lihat Produk</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-num">500+</span>
+            <span class="stat-label">Pelanggan</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">50+</span>
+            <span class="stat-label">Plugin Premium</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Garansi</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">24/7</span>
+            <span class="stat-label">Support</span>
+        </div>
+    </div>
+
+    <!-- PRODUK -->
+    <section class="section" id="produk">
+        <div class="section-header">
+            <div class="section-tag">// Katalog</div>
+            <h2 class="section-title">PRODUK & LAYANAN</h2>
+        </div>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-badge">HOT</div>
+                <span class="product-icon">🔌</span>
+                <div class="product-name">Plugin Premium</div>
+                <div class="product-desc">Plugin Minecraft premium original dengan harga terjangkau. Anti-cheat, Economy, RPG, dan banyak lagi.</div>
+                <div class="product-price">Mulai Rp 15.000</div>
+            </div>
+            <div class="product-card">
+                <span class="product-icon">🎨</span>
+                <div class="product-name">Asset & Mode</div>
+                <div class="product-desc">Resource pack, texture, model 3D, dan asset Minecraft custom berkualitas tinggi untuk server kamu.</div>
+                <div class="product-price">Mulai Rp 10.000</div>
+            </div>
+            <div class="product-card">
+                <div class="product-badge">NEW</div>
+                <span class="product-icon">💾</span>
+                <div class="product-name">Backup Server</div>
+                <div class="product-desc">Layanan backup data server Minecraft kamu secara aman dan terjadwal. Tidak perlu takut kehilangan data.</div>
+                <div class="product-price">Mulai Rp 25.000</div>
+            </div>
+            <div class="product-card">
+                <span class="product-icon">🌐</span>
+                <div class="product-name">Jasa Website</div>
+                <div class="product-desc">Jasa pembuatan website profesional untuk server Minecraft, toko online, portofolio, dan kebutuhan lainnya.</div>
+                <div class="product-price">Mulai Rp 150.000</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KEUNGGULAN -->
+    <section class="section" id="layanan" style="padding-top: 0;">
+        <div class="section-header">
+            <div class="section-tag">// Mengapa Kami</div>
+            <h2 class="section-title">KENAPA ZENO STORE?</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <div class="feature-title">Pengiriman Cepat</div>
+                <div class="feature-desc">Produk dikirim instan setelah pembayaran dikonfirmasi.</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🛡️</span>
+                <div class="feature-title">100% Original</div>
+                <div class="feature-desc">Semua plugin dan asset adalah produk original berlisensi.</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💬</span>
+                <div class="feature-title">Support 24/7</div>
+                <div class="feature-desc">Tim support kami siap membantu kamu kapan saja.</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <div class="feature-title">Transaksi Aman</div>
+                <div class="feature-desc">Pembayaran aman dan terenkripsi. Data kamu terjaga.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section" id="kontak">
+        <h2>SIAP BERGABUNG?</h2>
+        <p>Daftar sekarang dan dapatkan akses ke semua produk & layanan Zeno Store.</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+            <a href="/register" class="btn-hero btn-hero-primary">Daftar Gratis</a>
+            <a href="/login" class="btn-hero btn-hero-secondary">Sudah Punya Akun</a>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2024 <span>Zeno Store</span> — All Rights Reserved</p>
+    </footer>
+
+</body>
+</html>

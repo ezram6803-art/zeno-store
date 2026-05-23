@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar — Zeno Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #00ff88;
+            --green-dim: #00cc66;
+            --dark: #050a0e;
+            --dark2: #0a1420;
+            --card: #0d1f2d;
+            --border: #1a3a4a;
+            --text: #c8e6f0;
+            --muted: #5a8a9f;
+            --error: #ff4466;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--dark);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .glow {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--green); }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+        }
+
+        .card-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--green);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .card-logo span { color: var(--text); }
+
+        .card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .card-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--dark2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+        }
+
+        input::placeholder { color: var(--muted); }
+
+        input.valid { border-color: var(--green); }
+        input.invalid { border-color: var(--error); }
+
+        .hint {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .hint.error { color: var(--error); }
+
+        .password-strength {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+            width: 0%;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--green);
+            color: var(--dark);
+            border: none;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--green-dim);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0,255,136,0.2);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-link {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .login-link a {
+            color: var(--green);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .login-link a:hover { color: var(--green-dim); }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-error {
+            background: rgba(255,68,102,0.1);
+            border: 1px solid rgba(255,68,102,0.3);
+            color: var(--error);
+        }
+
+        .alert-success {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            color: var(--green);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow"></div>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Beranda</a>
+
+        <div class="card">
+            <div class="card-logo">ZENO<span>STORE</span></div>
+            <h1 class="card-title">DAFTAR</h1>
+            <p class="card-subtitle">Buat akun Zeno Store gratis sekarang</p>
+
+            <div class="alert alert-error" id="alertError"></div>
+            <div class="alert alert-success" id="alertSuccess"></div>
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="username kamu" oninput="validateUsername()">
+                <div class="hint" id="hintUsername">Minimal 3 karakter</div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="email@kamu.com" oninput="validateEmail()">
+                <div class="hint" id="hintEmail"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" oninput="validatePassword()">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="hint" id="hintPassword">Minimal 6 karakter</div>
+            </div>
+
+            <div class="form-group">
+                <label>Konfirmasi Password</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" oninput="validateConfirm()">
+                <div class="hint" id="hintConfirm"></div>
+            </div>
+
+            <button class="btn-submit" id="btnRegister" onclick="handleRegister()">DAFTAR SEKARANG</button>
+
+            <div class="divider"><span>atau</span></div>
+
+            <div class="login-link">
+                Sudah punya akun? <a href="/login">Login di sini</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateUsername() {
+            const val = document.getElementById('username').value.trim();
+            const hint = document.getElementById('hintUsername');
+            const input = document.getElementById('username');
+            if (val.length >= 3) {
+                input.className = 'valid';
+                hint.textContent = '✓ Username valid';
+                hint.className = 'hint';
+            } else {
+                input.className = '';
+                hint.textContent = 'Minimal 3 karakter';
+                hint.className = 'hint';
+            }
+        }
+
+        function validateEmail() {
+            const val = document.getElementById('email').value.trim();
+            const hint = document.getElementById('hintEmail');
+            const input = document.getElementById('email');
+            const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+            if (valid) {
+                input.className = 'valid';
+                hint.textContent = '✓ Email valid';
+                hint.className = 'hint';
+            } else if (val.length > 0) {
+                input.className = 'invalid';
+                hint.textContent = 'Format email tidak valid';
+                hint.className = 'hint error';
+            } else {
+                input.className = '';
+                hint.textContent = '';
+            }
+        }
+
+        function validatePassword() {
+            const val = document.getElementById('password').value;
+            const bar = document.getElementById('strengthBar');
+            const hint = document.getElementById('hintPassword');
+
+            let strength = 0;
+            if (val.length >= 6) strength++;
+            if (val.length >= 10) strength++;
+            if (/[A-Z]/.test(val)) strength++;
+            if (/[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+            const colors = ['#ff4466', '#ff8844', '#ffcc44', '#44ff88', '#00ff88'];
+            const labels = ['', 'Lemah', 'Cukup', 'Bagus', 'Kuat', 'Sangat Kuat'];
+            const widths = [0, 20, 40, 60, 80, 100];
+
+            bar.style.width = widths[strength] + '%';
+            bar.style.background = colors[Math.max(0, strength - 1)] || '#ff4466';
+            hint.textContent = strength > 0 ? 'Kekuatan: ' + labels[strength] : 'Minimal 6 karakter';
+
+            validateConfirm();
+        }
+
+        function validateConfirm() {
+            const pass = document.getElementById('password').value;
+            const conf = document.getElementById('confirmPassword').value;
+            const hint = document.getElementById('hintConfirm');
+            const input = document.getElementById('confirmPassword');
+            if (conf.length === 0) return;
+            if (pass === conf) {
+                input.className = 'valid';
+                hint.textContent = '✓ Password cocok';
+                hint.className = 'hint';
+            } else {
+                input.className = 'invalid';
+                hint.textContent = 'Password tidak cocok';
+                hint.className = 'hint error';
+            }
+        }
+
+        async function handleRegister() {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('btnRegister');
+
+            document.getElementById('alertError').style.display = 'none';
+            document.getElementById('alertSuccess').style.display = 'none';
+
+            if (!username || !email || !password || !confirmPassword) {
+                showAlert('alertError', 'Semua field harus diisi!');
+                return;
+            }
+            if (username.length < 3) {
+                showAlert('alertError', 'Username minimal 3 karakter!');
+                return;
+            }
+            if (password.length < 6) {
+                showAlert('alertError', 'Password minimal 6 karakter!');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showAlert('alertError', 'Password dan konfirmasi tidak cocok!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'MEMPROSES...';
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showAlert('alertSuccess', data.message);
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1800);
+                } else {
+                    showAlert('alertError', data.message);
+                    btn.disabled = false;
+                    btn.textContent = 'DAFTAR SEKARANG';
+                }
+            } catch (err) {
+                showAlert('alertError', 'Terjadi kesalahan. Coba lagi.');
+                btn.disabled = false;
+                btn.textContent = 'DAFTAR SEKARANG';
+            }
+        }
+
+        function showAlert(id, message) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
